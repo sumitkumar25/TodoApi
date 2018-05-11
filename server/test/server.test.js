@@ -2,11 +2,12 @@ const expect = require('expect');
 const request = require('supertest');
 const { app } = require('../server');
 const { Todo } = require('../model/todo');
+const { ObjectID } = require('mongodb');
 const testTodos = [
-    { text: "Test todo a" },
-    { text: "Test todo b" },
-    { text: "Test todo c" },
-    { text: "Test todo d" }
+    { _id: new ObjectID(), text: "Test todo a" },
+    { _id: new ObjectID(), text: "Test todo b" },
+    { _id: new ObjectID(), text: "Test todo c" },
+    { _id: new ObjectID(), text: "Test todo d" }
 ]
 beforeEach((done) => {
     Todo.remove({})
@@ -65,3 +66,28 @@ describe('GET/todos should return all todos', () => {
             .end(done)
     })
 });
+
+describe('GET/todos/:id should return todo with given id', () => {
+    var testId = testTodos[0]._id.toHexString();
+    it('should fetch todo with valid id', (done) => {
+        request(app)
+            .get(`/todos/${testId}`)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.todos.text).toBe(testTodos[0].text);
+            })
+            .end(done);
+    });
+    it('should throw 400 for invalid id', (done) => {
+        request(app)
+            .get(`/todos/123`)
+            .expect(400)
+            .end(done);
+    });
+    it('should throw 400 for valid id and no match', (done) => {
+        request(app)
+            .get(`/todos/${new ObjectID()}`)
+            .expect(400)
+            .end(done);
+    });
+})
