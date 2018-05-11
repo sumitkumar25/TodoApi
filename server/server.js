@@ -6,6 +6,7 @@ var { Todo } = require('./model/todo');
 var { User } = require('./model/user');
 
 var app = express();
+const port = process.env.PORT || 3000;
 /** 
  * middle ware
  * */
@@ -59,7 +60,7 @@ app.get('/todos/:id', (req, res) => {
         res.status(400).send();
     });
 });
-app.listen(3000, () => {
-    console.log('started on post 3000');
+app.listen(port, () => {
+    console.log(`started on post ${port}`);
 });
 module.exports = { app };
