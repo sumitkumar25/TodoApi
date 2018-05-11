@@ -90,4 +90,37 @@ describe('GET/todos/:id should return todo with given id', () => {
             .expect(400)
             .end(done);
     });
-})
+});
+describe('DELETE/todos/:id should return todo with given id', () => {
+    var testId = testTodos[0]._id.toHexString();
+    it('should DELETE todo with valid id', (done) => {
+        request(app)
+            .delete(`/todos/${testId}`)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.todos.text).toBe(testTodos[0].text);
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                Todo.findById(testId)
+                    .then((doc) => {
+                        expect(doc).toNotExist();
+                        done();
+                    }).catch(e => done(e));
+            });
+    });
+    it('should throw 400 for invalid id', (done) => {
+        request(app)
+            .delete(`/todos/123`)
+            .expect(404)
+            .end(done);
+    });
+    it('should throw 400 for valid id and no match', (done) => {
+        request(app)
+            .delete(`/todos/${new ObjectID()}`)
+            .expect(404)
+            .end(done);
+    });
+});
