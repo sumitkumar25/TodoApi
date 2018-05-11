@@ -4,8 +4,8 @@ const { app } = require('../server');
 const { Todo } = require('../model/todo');
 const { ObjectID } = require('mongodb');
 const testTodos = [
-    { _id: new ObjectID(), text: "Test todo a" },
-    { _id: new ObjectID(), text: "Test todo b" },
+    { _id: new ObjectID(), text: "Test todo a", completed: false },
+    { _id: new ObjectID(), text: "Test todo b", completed: true, completedAt: new Date().getTime() },
     { _id: new ObjectID(), text: "Test todo c" },
     { _id: new ObjectID(), text: "Test todo d" }
 ]
@@ -124,3 +124,33 @@ describe('DELETE/todos/:id should return todo with given id', () => {
             .end(done);
     });
 });
+
+describe('PATCH/todos/:id', () => {
+    var testId = testTodos[0]._id.toHexString();
+    it('should set completed of todo to true and return completed at property', (done) => {
+        request(app)
+            .patch(`/todos/${testId}`)
+            .send({
+                completed: true,
+                text: 'testText'
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todos.completed).toBe(true);
+                expect(res.body.todos.text).toBe('testText');
+                expect(res.body.todos.completedAt).toBeA('number');
+            })
+            .end(done);
+    });
+    it('should set completed of todo to false and completed at property as null', (done) => {
+        request(app)
+            .patch(`/todos/${testId}`)
+            .send({ completed: false })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todos.completed).toBe(false);
+                expect(res.body.todos.completedAt).toNotExist();
+            })
+            .end(done);
+    });
+})
