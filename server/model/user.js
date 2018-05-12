@@ -51,13 +51,33 @@ UserSchema.methods.generateAuthToken = function() {
         .then(() => {
             return token;
         })
-};
+}
 UserSchema.methods.toJSON = function() {
-        var user = this;
-        var userObj = user.toObject();
-        return _.pick(userObj, ['_id', 'email']);
-    }
-    //model meathod
+    var user = this;
+    var userObj = user.toObject();
+    return _.pick(userObj, ['_id', 'email']);
+};
+/**
+ * model meathod
+ */
+UserSchema.statics.findByCredentials = function(email, password) {
+    var user = this;
+    return User.findOne({ email }).then(user => {
+        //console.log('user', user);
+        if (!user) {
+            return Promise.reject;
+        }
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(password.toString(), user.password, (err, res) => {
+                if (res) {
+                    resolve(user)
+                } else {
+                    reject();
+                }
+            });
+        })
+    })
+};
 UserSchema.statics.findByToken = function(token) {
     var User = this;
     var decoded = null;
