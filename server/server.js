@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 app.post('/todos', authenticate, (req, res) => {
     var todo = new Todo({
         text: req.body.text,
-        _creator = req.user._id
+        _creator: req.user._id
     });
     todo.save().then((doc) => {
         res.send(doc);
