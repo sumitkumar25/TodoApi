@@ -3,10 +3,10 @@ const { Todo } = require('./../../model/todo');
 const { User } = require('./../../model/user');
 const jwt = require('jsonwebtoken');
 const testTodos = [
-    { _id: new ObjectID(), text: "Test todo a", completed: false },
-    { _id: new ObjectID(), text: "Test todo b", completed: true, completedAt: new Date().getTime() },
-    { _id: new ObjectID(), text: "Test todo c" },
-    { _id: new ObjectID(), text: "Test todo d" }
+    { _id: new ObjectID(), text: "Test todo a", completed: false, _creator: userAid },
+    { _id: new ObjectID(), text: "Test todo b", completed: true, completedAt: new Date().getTime(), _creator: userBid },
+    { _id: new ObjectID(), text: "Test todo c", _creator: userAid },
+    { _id: new ObjectID(), text: "Test todo d", _creator: userAid }
 ];
 const userAid = new ObjectID();
 const userBid = new ObjectID();
@@ -16,7 +16,7 @@ const testUsers = [{
     password: 'user1password',
     tokens: [{
         access: 'auth',
-        token: jwt.sign({ _id: userAid, access: 'auth' }, 'abc123').toString()
+        token: jwt.sign({ _id: userAid, access: 'auth' }, process.env.JWT_SEC).toString()
     }]
 }, {
     _id: userBid,
