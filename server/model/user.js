@@ -36,6 +36,7 @@ var UserSchema = new mongoose.Schema({
         }
     }]
 });
+//instance meathod
 UserSchema.methods.generateAuthToken = function() {
     var user = this;
     var access = 'auth';
@@ -51,9 +52,24 @@ UserSchema.methods.generateAuthToken = function() {
         })
 };
 UserSchema.methods.toJSON = function() {
-    var user = this;
-    var userObj = user.toObject();
-    return _.pick(userObj, ['_id', 'email']);
+        var user = this;
+        var userObj = user.toObject();
+        return _.pick(userObj, ['_id', 'email']);
+    }
+    //model meathod
+UserSchema.statics.findByToken = function(token) {
+    var User = this;
+    var decoded = null;
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (error) {
+        return Promise.reject();
+    }
+    return User.findOne({
+        _id: decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    })
 }
 var User = mongoose.model('users', UserSchema);
 
